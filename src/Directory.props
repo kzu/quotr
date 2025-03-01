@@ -1,5 +1,6 @@
 <Project>
   <PropertyGroup>
     <RootNamespace>Quote</RootNamespace>
+    <UserSecretsId>a7bd25ab-f6d0-451c-9c92-addf2e740058</UserSecretsId>
   </PropertyGroup>
 </Project>
