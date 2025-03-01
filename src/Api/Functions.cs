@@ -5,12 +5,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Quote;
 
-public class Functions(IConfiguration configuration, IQuoteService quotes, ILogger<Functions> logger)
+#pragma warning disable EXTEXP0018 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+
+public class Functions(IConfiguration configuration, IQuoteService quotes, HybridCache cache, ILogger<Functions> logger)
 {
     [Function("quote")]
     public async Task<HttpResponseData> Quote(
@@ -22,9 +25,14 @@ public class Functions(IConfiguration configuration, IQuoteService quotes, ILogg
 
         try
         {
-            var quote = date == null
-                ? await quotes.GetLatestAsync(symbol)
-                : await quotes.GetQuoteAsync(symbol, DateOnly.Parse(date));
+            var cacheDate = date == null ? DateOnly.FromDateTime(DateTime.Now) : DateOnly.Parse(date);
+            var cacheKey = $"{symbol}-{cacheDate:yyyy-MM-dd}";
+
+            var quote = await cache.GetOrCreateAsync(
+                cacheKey,
+                async cancellation => date == null
+                    ? await quotes.GetLatestAsync(symbol)
+                    : await quotes.GetQuoteAsync(symbol, DateOnly.Parse(date)));
 
             if (quote == null)
             {
