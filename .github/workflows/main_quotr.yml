@@ -12,6 +12,7 @@ on:
 env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: '8.x' # set this to the dotnet version to use
+  Configuration: 'Release' 
 
 jobs:
   build-and-deploy:
@@ -33,7 +34,7 @@ jobs:
         shell: bash
         run: |
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          dotnet build --configuration Release --output ./output
+          dotnet publish --verbosity normal --runtime linux-x64 --self-contained --output ./output
           popd
       
       - name: Login to Azure
