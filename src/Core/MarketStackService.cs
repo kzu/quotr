@@ -29,7 +29,13 @@ public static class MarketStackService
         {
             while (true)
             {
-                var service = services[random.Next(services.Count)];
+                if (services.Count == 0)
+                    return 0.0;
+
+                var service = services.Count == 1 ?
+                    services[0] :
+                    services[random.Next(services.Count)];
+
                 try
                 {
                     return await service.GetLatestAsync(symbol);
@@ -47,7 +53,13 @@ public static class MarketStackService
         {
             while (true)
             {
-                var service = services[random.Next(services.Count)];
+                if (services.Count == 0)
+                    return 0.0;
+
+                var service = services.Count == 1 ?
+                    services[0] :
+                    services[random.Next(services.Count)];
+
                 try
                 {
                     return await service.GetQuoteAsync(symbol, date);
